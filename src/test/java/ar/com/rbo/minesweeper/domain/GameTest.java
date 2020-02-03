@@ -76,42 +76,8 @@ public class GameTest {
 	}
 	
 	@Test
-	public void testMoveValidation() throws IllegalAccessException {
-		// a game with all the cells with mine is created so first move will result in loss
+	public void testRevealOutsideTheBoardValidation() {
 		Game game = new Game(10, 10, 100);
-		game.reveal(0, 0);
-		
-		assertEquals(GameState.LOST, game.getState());
-		
-		try {
-			game.reveal(0, 0);
-			fail();
-		} catch (IllegalAccessException e) {
-			assertEquals("Game is no longer in progress", e.getMessage());
-		}
-		
-		try {
-			game.flag(0, 0);
-			fail();
-		} catch (IllegalAccessException e) {
-			assertEquals("Game is no longer in progress", e.getMessage());
-		}
-		
-		try {
-			game.mark(0, 0);
-			fail();
-		} catch (IllegalAccessException e) {
-			assertEquals("Game is no longer in progress", e.getMessage());
-		}
-		
-		try {
-			game.clear(0, 0);
-			fail();
-		} catch (IllegalAccessException e) {
-			assertEquals("Game is no longer in progress", e.getMessage());
-		}
-
-		game = new Game(10, 10, 100);
 		
 		try {
 			game.reveal(-1, 0);
@@ -126,6 +92,7 @@ public class GameTest {
 		} catch (IllegalAccessException e) {
 			assertEquals("Cell coordinates (0, -1) outside existing board", e.getMessage());
 		}
+		
 		try {
 			game.reveal(11, 0);
 			fail();
@@ -135,6 +102,165 @@ public class GameTest {
 		
 		try {
 			game.reveal(0, 11);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (0, 11) outside existing board", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testRevealWhenGameIsNotInProgress() throws IllegalAccessException {
+		Game game = new Game(10, 10, 100);
+		game.reveal(0, 0);
+		
+		assertEquals(GameState.LOST, game.getState());
+		
+		try {
+			game.reveal(0, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Game is no longer in progress", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testFlagWhenGameIsNotInProgress() throws IllegalAccessException {
+		Game game = new Game(10, 10, 100);
+		game.reveal(0, 0);
+		
+		assertEquals(GameState.LOST, game.getState());
+		
+		try {
+			game.flag(0, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Game is no longer in progress", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testMarkWhenGameIsNotInProgress() throws IllegalAccessException {
+		Game game = new Game(10, 10, 100);
+		game.reveal(0, 0);
+		
+		assertEquals(GameState.LOST, game.getState());
+		
+		try {
+			game.mark(0, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Game is no longer in progress", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testClearWhenGameIsNotInProgress() throws IllegalAccessException {
+		Game game = new Game(10, 10, 100);
+		game.reveal(0, 0);
+		
+		assertEquals(GameState.LOST, game.getState());
+		
+		try {
+			game.clear(0, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Game is no longer in progress", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testFlagOutsideTheBoardValidation() {
+		Game game = new Game(10, 10, 100);
+		
+		try {
+			game.flag(-1, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (-1, 0) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.flag(0, -1);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (0, -1) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.flag(11, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (11, 0) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.flag(0, 11);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (0, 11) outside existing board", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testMarkOutsideTheBoardValidation() {
+		Game game = new Game(10, 10, 100);
+		
+		try {
+			game.mark(-1, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (-1, 0) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.mark(0, -1);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (0, -1) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.mark(11, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (11, 0) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.mark(0, 11);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (0, 11) outside existing board", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testClearOutsideTheBoardValidation() {
+		Game game = new Game(10, 10, 100);
+		
+		try {
+			game.clear(-1, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (-1, 0) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.clear(0, -1);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (0, -1) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.clear(11, 0);
+			fail();
+		} catch (IllegalAccessException e) {
+			assertEquals("Cell coordinates (11, 0) outside existing board", e.getMessage());
+		}
+		
+		try {
+			game.clear(0, 11);
 			fail();
 		} catch (IllegalAccessException e) {
 			assertEquals("Cell coordinates (0, 11) outside existing board", e.getMessage());

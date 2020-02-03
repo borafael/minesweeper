@@ -3,6 +3,7 @@ package ar.com.rbo.minesweeper.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 /**
@@ -31,6 +32,11 @@ public class Game {
 	}
 	
 	/**
+	 * Unique identifier of a game
+	 */
+	private UUID id;
+	
+	/**
 	 * State of the game
 	 */
 	private GameState state;
@@ -41,6 +47,11 @@ public class Game {
 	private int rowCount;
 	private int colCount;
 	private int mineCount;
+	
+	/**
+	 * Counter for empty cells revealed
+	 */
+	private int emptyCellsRevealed;
 	
 	/**
 	 * State of the board that the player can see
@@ -56,9 +67,13 @@ public class Game {
 	 * Initializes a game of minesweeper
 	 */
 	public Game(int rowCount, int colCount, int mineCount) {
+		this.id = UUID.randomUUID();
+		
 		this.rowCount = rowCount;
 		this.colCount = colCount;
 		this.mineCount = mineCount;
+		
+		this.emptyCellsRevealed = 0;
 		
 		this.state = GameState.IN_PROGRESS;
 
@@ -86,6 +101,13 @@ public class Game {
 				board[row][col] = CellState.UNKNOWN;
 				mines[row][col] = cells.get(cellIndex);
 			});
+	}
+	
+	/**
+	 * Returns the unique identifier of the game
+	 */
+	public UUID getId() {
+		return id;
 	}
 	
 	/**
@@ -171,11 +193,34 @@ public class Game {
 	}
 	
 	/**
+	 * Returns a snapshot of the board's state
+	 */
+	public Game.CellState[][] getBoard() {
+		Game.CellState[][] board = new Game.CellState[rowCount][colCount];
+		
+		IntStream.range(0, rowCount)
+			.forEach(row -> {
+				IntStream.range(0, colCount)
+					.forEach(col -> {
+						board[row][col] = getCellState(row, col);
+					});
+			});
+		
+		return board;
+	}
+	
+	/**
 	 * Recursively reveals all adjacent cells that need to be revealed
 	 */
 	private void revealRecursive(int row, int col) {
 		if (shouldBeRevealed(row, col)) {
 			board[row][col] = CellState.EMPTY;
+			emptyCellsRevealed++;
+			
+			if (emptyCellsRevealed == rowCount * colCount - mineCount) {
+				state = GameState.WON;
+			}
+			
 			revealRecursive(row + 1, col);
 			revealRecursive(row - 1, col);
 			revealRecursive(row, col + 1);
@@ -191,7 +236,8 @@ public class Game {
 				row >= 0 && row < rowCount &&
 				col >= 0 && col < colCount &&
 				GameState.IN_PROGRESS == state &&
-				CellState.UNKNOWN == board[row][col];
+				CellState.UNKNOWN == board[row][col] &&
+				!mines[row][col];
 	}
 
 	/**

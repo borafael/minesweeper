@@ -1,11 +1,10 @@
 package ar.com.rbo.minesweeper.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,15 +79,15 @@ public class GameControllerTest {
 	
 	@Test
 	public void testFindGames() {
-		List<GamePayload> games = controller.findGames();
+		GamesPayload games = controller.findGames();
 		
 		verify(serviceMock).findGames();
 		verify(mapperMock).toPayload(aGameMock);
 		verify(mapperMock).toPayload(anotherGameMock);
 		
-		assertEquals(2, games.size());
-		assertEquals(aGamePayloadMock, games.get(0));
-		assertEquals(anotherGamePayloadMock, games.get(1));
+		assertEquals(2, games.getGames().size());
+		assertEquals(aGamePayloadMock, games.getGames().get(0));
+		assertEquals(anotherGamePayloadMock, games.getGames().get(1));
 	}
 	
 	@Test

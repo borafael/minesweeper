@@ -49,7 +49,8 @@ public class GameService {
 	 */
 	public Game createGame(int rowCount, int colCount, int mineCount) {
 		Game game = new Game(rowCount, colCount, mineCount);
-		return games.put(game.getId(), game);
+		games.put(game.getId(), game);
+		return game;
 	}
 	
 	/**

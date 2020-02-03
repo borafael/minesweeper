@@ -3,7 +3,6 @@ package ar.com.rbo.minesweeper.controller;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.collect.ImmutableList;
 
 import ar.com.rbo.minesweeper.domain.Game;
 import ar.com.rbo.minesweeper.domain.GameService;
@@ -44,7 +45,7 @@ public class GameController {
 	public @ResponseBody List<GamePayload> findGames() {
 		return service.findGames().stream()
 				.map(mapper::toPayload)
-				.collect(Collectors.toList());
+				.collect(ImmutableList.toImmutableList());
 	}
 	
 	@GetMapping("/games/{gameId}")

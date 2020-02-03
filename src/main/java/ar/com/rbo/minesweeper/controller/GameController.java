@@ -31,7 +31,12 @@ public class GameController {
 	 * Initializes the controller with a {@link GameService} instance (constructor meant for dependency injection)
 	 */
 	public GameController(GameService service) {
-		this.mapper = new GameMapper();
+		this(new GameMapper(), service);
+	}
+	
+
+	GameController(GameMapper mapper, GameService service) {
+		this.mapper = mapper;
 		this.service = service;
 	}
 	
@@ -44,7 +49,7 @@ public class GameController {
 	
 	@GetMapping("/games/{gameId}")
 	public @ResponseBody GamePayload findGame(@PathVariable(value="gameId") UUID gameId) {
-		return mapper.toPayload(service.findGame(gameId).orElseThrow(() -> new NoSuchElementException("Not found")));
+		return mapper.toPayload(service.findGame(gameId).orElseThrow(() -> new NoSuchElementException("Could not find game with id " + gameId)));
 	}
 
 	@PostMapping("/games/{gameId}/moves")

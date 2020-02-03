@@ -2,6 +2,7 @@ package ar.com.rbo.minesweeper.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -37,6 +38,11 @@ public class Game {
 	private UUID id;
 	
 	/**
+	 * Date of creation
+	 */
+	private Date creationDate;
+	
+	/**
 	 * State of the game
 	 */
 	private GameState state;
@@ -68,6 +74,8 @@ public class Game {
 	 */
 	public Game(int rowCount, int colCount, int mineCount) {
 		this.id = UUID.randomUUID();
+		
+		this.creationDate = new Date();
 		
 		this.rowCount = rowCount;
 		this.colCount = colCount;
@@ -108,6 +116,13 @@ public class Game {
 	 */
 	public UUID getId() {
 		return id;
+	}
+	
+	/**
+	 * Returns the date the game was started
+	 */
+	public Date getCreationDate() {
+		return creationDate;
 	}
 	
 	/**

@@ -1,9 +1,9 @@
 package ar.com.rbo.minesweeper.controller;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +25,16 @@ import ar.com.rbo.minesweeper.domain.GameService;
 @RestController
 public class GameController {
 	
+	@Autowired
 	private GameMapper mapper;
+	
+	@Autowired
 	private GameService service;
+	
+	/**
+	 * Needed for testing
+	 */
+	public GameController() {}
 	
 	/**
 	 * Initializes the controller with a {@link GameService} instance (constructor meant for dependency injection)
@@ -42,10 +50,10 @@ public class GameController {
 	}
 	
 	@GetMapping("/games")
-	public @ResponseBody List<GamePayload> findGames() {
-		return service.findGames().stream()
+	public @ResponseBody GamesPayload findGames() {
+		return new GamesPayload(service.findGames().stream()
 				.map(mapper::toPayload)
-				.collect(ImmutableList.toImmutableList());
+				.collect(ImmutableList.toImmutableList()));
 	}
 	
 	@GetMapping("/games/{gameId}")

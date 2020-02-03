@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Service class for {@link Game} entity
  */
@@ -20,7 +22,12 @@ public class GameService {
 	 * Initializes the service with no games being played
 	 */
 	public GameService() {
-		this.games = new HashMap<>();
+		this(new HashMap<>());
+	}
+	
+	@VisibleForTesting
+	public GameService(Map<UUID, Game> games) {
+		this.games = games;
 	}
 	
 	/**
@@ -42,8 +49,7 @@ public class GameService {
 	 */
 	public Game createGame(int rowCount, int colCount, int mineCount) {
 		Game game = new Game(rowCount, colCount, mineCount);
-		games.put(game.getId(), game);
-		return game;
+		return games.put(game.getId(), game);
 	}
 	
 	/**
@@ -54,6 +60,4 @@ public class GameService {
 		move.apply(game);
 		return game;		
 	}
-	
-
 }

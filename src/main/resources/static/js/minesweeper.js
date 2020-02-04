@@ -1,5 +1,12 @@
 var MINESWEEPER = {}
 
+// show elapsed time below the board (it will start showing once the game is in progress)
+setInterval(function() { 
+	if ('IN_PROGRESS' == MINESWEEPER.state) {
+		MINESWEEPER.updateElapsedTime();
+	}
+}, 1);
+
 /**
  * Validates game parameters and if they are valid a request to create new game is made
  */
@@ -10,15 +17,15 @@ MINESWEEPER.newGame = function() {
 
 	var validationMessages = new Array();
 
-	if (rows.length == 0 || isNaN(rows)) {
+	if (rows.length < 0 || rows < 1 || rows > 30 || isNaN(rows)) {
 		validationMessages.push('You must input a valid amount of rows');
 	}
 
-	if (cols.length == 0 || isNaN(cols)) {
+	if (cols.length < 0 || cols < 1 || cols > 30 || isNaN(cols)) {
 		validationMessages.push('You must input a valid amount of columns');
 	}
 
-	if (mines.length == 0 || isNaN(mines)) {
+	if (mines.length == 0 || mines < 0 || mines > rows * cols || isNaN(mines)) {
 		validationMessages.push('You must input a valid amount of mines');
 	}
 
@@ -33,17 +40,13 @@ MINESWEEPER.newGame = function() {
  * Makes a request to create a new game, if successful the new game is rendered
  */
 MINESWEEPER.createGame = function(rows, cols, mines) { 
-	var onSuccess = function(response) {
-		MINESWEEPER.update(response);
-	}
-	
 	var payload = {
 		    'rowCount': rows,
 		    'colCount': cols,
 		    'mineCount': mines
 		};
 	
-	this.request('POST', 'games', onSuccess, payload);
+	this.request('POST', 'games', this.update, payload);
 }
 
 /**
@@ -51,10 +54,12 @@ MINESWEEPER.createGame = function(rows, cols, mines) {
  */
 MINESWEEPER.update = function(game) {
 	
+	// game status is updated
 	MINESWEEPER.gameId = game.id;
 	MINESWEEPER.startTime = Date.parse(game.creationDate);
 	MINESWEEPER.state = game.state;
 	
+	// state change is handled
 	if ('LOST' == MINESWEEPER.state) {
 		alert('BOOM!!!');
 	}
@@ -63,17 +68,12 @@ MINESWEEPER.update = function(game) {
 		alert('You discovered all the mines!!!');
 	}
 	
-	this.renderBoard(game);
-		
-	setInterval(function() { 
-		if ('IN_PROGRESS' == MINESWEEPER.state) {
-			MINESWEEPER.updateElapsedTime();
-		}
-	}, 1);
+	// updated board is rendered
+	MINESWEEPER.renderBoard(game);
 }
 
 /**
- * Renderes the board according to the state of the game
+ * Renders the board according to the state of the game
  */
 MINESWEEPER.renderBoard = function(game) {
 	var board = document.getElementById('board');
@@ -140,17 +140,13 @@ MINESWEEPER.updateElapsedTime = function() {
  * Makes a request to reveal the cell in the received coordinates, if successful, the game is updated
  */
 MINESWEEPER.reveal = function(row, col) {
-	var onSuccess = function(response) {
-		MINESWEEPER.update(response);
-	}
-	
 	var payload = {
 		    'row': row,
 		    'col': col,
 		    'type': 'reveal'
 		};
 	
-	this.request('POST', 'games/' + MINESWEEPER.gameId + '/moves', onSuccess, payload);
+	this.request('POST', 'games/' + MINESWEEPER.gameId + '/moves', this.update, payload);
 }
 
 /**

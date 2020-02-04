@@ -20,6 +20,7 @@ public class GameMapper {
 	public GamePayload toPayload(Game game) {
 		return new GamePayload(
 				game.getId(),
+				game.getCreationDate(),
 				game.getRowCount(), 
 				game.getColCount(), 
 				game.getMineCount(), 

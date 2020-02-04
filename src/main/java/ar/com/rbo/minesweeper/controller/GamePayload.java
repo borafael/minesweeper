@@ -1,5 +1,6 @@
 package ar.com.rbo.minesweeper.controller;
 
+import java.util.Date;
 import java.util.UUID;
 
 import ar.com.rbo.minesweeper.domain.Game;
@@ -12,6 +13,8 @@ import ar.com.rbo.minesweeper.domain.Game.GameState;
 public class GamePayload {
 	
 	private UUID id;
+	
+	private Date creationDate;
 
 	private int rowCount;
 	private int colCount;
@@ -29,8 +32,9 @@ public class GamePayload {
 	/**
 	 * Initializes the game payload
 	 */
-	public GamePayload(UUID id, int rowCount, int colCount, int mineCount, GameState state, CellState[][] board) {
+	public GamePayload(UUID id, Date creationDate, int rowCount, int colCount, int mineCount, GameState state, CellState[][] board) {
 		this.id = id;
+		this.creationDate = creationDate;
 		this.rowCount = rowCount;
 		this.colCount = colCount;
 		this.mineCount = mineCount;
@@ -43,6 +47,13 @@ public class GamePayload {
 	 */
 	public UUID getId() {
 		return id;
+	}
+	
+	/**
+	 * Returns the game's creation date
+	 */
+	public Date getCreationDate() {
+		return creationDate;
 	}
 
 	/**

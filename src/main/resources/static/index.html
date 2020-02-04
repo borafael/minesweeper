@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>Minesweeper</title>
+		<script type="text/javascript" src="js/minesweeper.js"></script>
+	</head>
+	<body>
+		<center><h1>Minesweeper Web Clone</h1></center>
+		<hr/>
+		<div style="border-style: none;" align="center">
+			<label for="rows">Rows</label>
+			<input id="rows" type="text" placeholder="Enter rows" name="rows">
+			
+			<label for="cols">Columns</label>
+			<input id="cols" type="text" placeholder="Enter cols" name="cols">
+			
+			<label for="mines">Mines</label>
+			<input id="mines" type="text" placeholder="Enter columns" name="mines">
+			
+			<button type="button" class="btn cancel" onclick="newGame()">New game!</button>
+		</div>
+		<hr/>
+		<div id="board" align="center">
+		</div>
+		<div id="status" align="center"></div>
+	</body>
+</html>

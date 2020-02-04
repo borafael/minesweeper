@@ -17,7 +17,7 @@ public class Cell {
 	}
 	
 	private State state;
-	private int adjacentMines;
+	private Integer adjacentMines;
 	
 	/**
 	 * Required by Jackson
@@ -27,7 +27,7 @@ public class Cell {
 	/**
 	 * Initializes the cell with a state and an amount of adjacent mines
 	 */
-	public Cell(State state, int adjacentMines) {
+	public Cell(State state, Integer adjacentMines) {
 		this.state = state;
 		this.adjacentMines = adjacentMines;
 	}

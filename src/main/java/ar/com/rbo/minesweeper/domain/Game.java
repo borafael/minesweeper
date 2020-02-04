@@ -256,7 +256,8 @@ public class Game {
 			.forEach(row -> {
 				IntStream.range(0, colCount)
 					.forEach(col -> {
-						board[row][col] = getCell(row, col);
+						Cell cell = getCell(row, col);
+						board[row][col] = new Cell(cell.getState(), Cell.State.EMPTY == cell.getState() ? cell.getAdjacentMines() : -1);
 					});
 			});
 		

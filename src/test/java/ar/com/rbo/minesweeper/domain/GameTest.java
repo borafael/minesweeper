@@ -7,7 +7,6 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
-import ar.com.rbo.minesweeper.domain.Game.CellState;
 import ar.com.rbo.minesweeper.domain.Game.GameState;
 
 /**
@@ -32,7 +31,7 @@ public class GameTest {
 			.forEach(cellIndex -> {
 				int row = cellIndex / 20;
 				int col = cellIndex - row * 20;
-				assertEquals(CellState.UNKNOWN, game.getCellState(row, col));
+				assertEquals(Cell.State.UNKNOWN, game.getCell(row, col).getState());
 			});
 	}
 	
@@ -41,7 +40,7 @@ public class GameTest {
 		Game game = new Game(10, 10, 0);
 		game.reveal(0, 0);
 		
-		assertEquals(CellState.EMPTY, game.getCellState(0, 0));
+		assertEquals(Cell.State.EMPTY, game.getCell(0, 0).getState());
 	}
 	
 	@Test
@@ -49,7 +48,7 @@ public class GameTest {
 		Game game = new Game(10, 10, 100);
 		game.reveal(0, 0);
 		
-		assertEquals(CellState.MINED, game.getCellState(0, 0));
+		assertEquals(Cell.State.MINED, game.getCell(0, 0).getState());
 	}
 	
 	@Test
@@ -57,14 +56,14 @@ public class GameTest {
 		Game game = new Game(10, 10, 10);
 		game.flag(0, 0);
 		
-		assertEquals(CellState.FLAGGED, game.getCellState(0, 0));
+		assertEquals(Cell.State.FLAGGED, game.getCell(0, 0).getState());
 	}
 	
 	@Test
 	public void testMarkCell() throws IllegalAccessException {
 		Game game = new Game(10, 10, 100);
 		game.mark(0, 0);
-		assertEquals(CellState.MARKED, game.getCellState(0, 0));
+		assertEquals(Cell.State.MARKED, game.getCell(0, 0).getState());
 	}
 	
 	@Test
@@ -72,7 +71,7 @@ public class GameTest {
 		Game game = new Game(10, 10, 100);
 		game.mark(0, 0);
 		game.clear(0, 0);
-		assertEquals(CellState.UNKNOWN, game.getCellState(0, 0));
+		assertEquals(Cell.State.UNKNOWN, game.getCell(0, 0).getState());
 	}
 	
 	@Test
@@ -265,5 +264,16 @@ public class GameTest {
 		} catch (IllegalAccessException e) {
 			assertEquals("Cell coordinates (0, 11) outside existing board", e.getMessage());
 		}
+	}
+	
+	@Test
+	public void testAdjacentMineCount() {
+		Game game = new Game(10, 10, 100);
+		
+		assertEquals(3, game.getCell(0, 0).getAdjacentMines());
+		assertEquals(3, game.getCell(0, 9).getAdjacentMines());
+		assertEquals(3, game.getCell(9, 0).getAdjacentMines());
+		assertEquals(3, game.getCell(9, 9).getAdjacentMines());
+		assertEquals(8, game.getCell(1, 1).getAdjacentMines());
 	}
 }

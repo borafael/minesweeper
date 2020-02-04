@@ -19,6 +19,7 @@ import ar.com.rbo.minesweeper.controller.GameCreationPayload;
 import ar.com.rbo.minesweeper.controller.GamePayload;
 import ar.com.rbo.minesweeper.controller.GamesPayload;
 import ar.com.rbo.minesweeper.controller.MovePayload;
+import ar.com.rbo.minesweeper.domain.Cell;
 import ar.com.rbo.minesweeper.domain.Game;
 
 @SpringBootTest(classes = MinesweeperApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -50,7 +51,7 @@ public class GamesApiTest {
 		IntStream.range(0, ROW_COUNT)
 			.forEach(row -> IntStream.range(0, COL_COUNT)
 					.forEach(col -> {
-						assertEquals(Game.CellState.UNKNOWN, gamePayload.getBoard()[row][col]);
+						assertEquals(Cell.State.UNKNOWN, gamePayload.getBoard()[row][col].getState());
 					}));		
 	}
 	
@@ -73,7 +74,7 @@ public class GamesApiTest {
 		IntStream.range(0, ROW_COUNT)
 			.forEach(row -> IntStream.range(0, COL_COUNT)
 					.forEach(col -> {
-						assertEquals(gamePayload.getBoard()[row][col], foundGamePayload.getBoard()[row][col]);
+						assertEquals(gamePayload.getBoard()[row][col].getState(), foundGamePayload.getBoard()[row][col].getState());
 					}));
 	}
 	
@@ -116,7 +117,7 @@ public class GamesApiTest {
 		GamePayload updatedGame = response.getBody();
 		
 		assertEquals(Game.GameState.LOST, updatedGame.getState());
-		assertEquals(Game.CellState.MINED, updatedGame.getBoard()[ROW][COL]);
+		assertEquals(Cell.State.MINED, updatedGame.getBoard()[ROW][COL].getState());
 	}
 	
 	@Test
@@ -130,7 +131,7 @@ public class GamesApiTest {
 		GamePayload updatedGame = response.getBody();
 		
 		assertEquals(Game.GameState.WON, updatedGame.getState());
-		assertEquals(Game.CellState.EMPTY, updatedGame.getBoard()[ROW][COL]);
+		assertEquals(Cell.State.EMPTY, updatedGame.getBoard()[ROW][COL].getState());
 	}
 	
 	@Test
@@ -144,7 +145,7 @@ public class GamesApiTest {
 		GamePayload updatedGame = response.getBody();
 		
 		assertEquals(Game.GameState.IN_PROGRESS, updatedGame.getState());
-		assertEquals(Game.CellState.FLAGGED, updatedGame.getBoard()[ROW][COL]);
+		assertEquals(Cell.State.FLAGGED, updatedGame.getBoard()[ROW][COL].getState());
 	}
 	
 	@Test
@@ -158,7 +159,7 @@ public class GamesApiTest {
 		GamePayload updatedGame = response.getBody();
 		
 		assertEquals(Game.GameState.IN_PROGRESS, updatedGame.getState());
-		assertEquals(Game.CellState.MARKED, updatedGame.getBoard()[ROW][COL]);
+		assertEquals(Cell.State.MARKED, updatedGame.getBoard()[ROW][COL].getState());
 	}
 	
 	@Test
@@ -172,7 +173,7 @@ public class GamesApiTest {
 		GamePayload updatedGame = response.getBody();
 		
 		assertEquals(Game.GameState.IN_PROGRESS, updatedGame.getState());
-		assertEquals(Game.CellState.FLAGGED, updatedGame.getBoard()[ROW][COL]);
+		assertEquals(Cell.State.FLAGGED, updatedGame.getBoard()[ROW][COL].getState());
 		
 		response = restTemplate.postForEntity(getBaseURL() + "/games/" + gamePayload.getId() + "/moves", new MovePayload.ClearPayload(ROW, COL), GamePayload.class);
 		
@@ -181,7 +182,7 @@ public class GamesApiTest {
 		updatedGame = response.getBody();
 		
 		assertEquals(Game.GameState.IN_PROGRESS, updatedGame.getState());
-		assertEquals(Game.CellState.UNKNOWN, updatedGame.getBoard()[ROW][COL]);
+		assertEquals(Cell.State.UNKNOWN, updatedGame.getBoard()[ROW][COL].getState());
 	}
 	
 	/**

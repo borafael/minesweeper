@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import ar.com.rbo.minesweeper.domain.Cell.State;
+
 /**
  * Representation of a game of minesweeper 
  */
@@ -19,17 +21,6 @@ public class Game {
 		IN_PROGRESS,
 		LOST,
 		WON
-	}
-	
-	/**
-	 * Possible states of a cell on the board
-	 */
-	public enum CellState {
-		UNKNOWN,
-		EMPTY,
-		MINED,
-		FLAGGED,
-		MARKED
 	}
 	
 	/**
@@ -62,7 +53,7 @@ public class Game {
 	/**
 	 * State of the board that the player can see
 	 */
-	private CellState[][] board;
+	private Cell[][] board;
 	
 	/**
 	 * Distribution of mines within the board
@@ -92,7 +83,7 @@ public class Game {
 	 * Initializes the board with all unknown cells and a random distribution of mines
 	 */
 	private void initBoard() {
-		this.board = new CellState[rowCount][colCount];
+		this.board = new Cell[rowCount][colCount];
 		this.mines = new boolean[rowCount][colCount];
 		
 		List<Boolean> cells = new ArrayList<>(rowCount * colCount);
@@ -106,9 +97,57 @@ public class Game {
 			.forEach(cellIndex -> {
 				int row = cellIndex / colCount;
 				int col = cellIndex - row * colCount;
-				board[row][col] = CellState.UNKNOWN;
+				board[row][col] = new Cell(Cell.State.UNKNOWN, countAdjacentMines(cells, row, col));
 				mines[row][col] = cells.get(cellIndex);
 			});
+	}
+	
+	/**
+	 * Returns the number of adjacent mines of the cell 
+	 */
+	private int countAdjacentMines(List<Boolean> cells, int row, int col) {
+		int adjacentMines = 0;
+		
+		if (row > 0 && col > 0 && cells.get(toCellIndex(row - 1, col - 1))) {
+			adjacentMines++;
+		}
+
+		if (row > 0 && cells.get(toCellIndex(row - 1, col))) {
+			adjacentMines++;
+		}
+
+		if (row > 0 && col < colCount - 1 && cells.get(toCellIndex(row - 1, col + 1))) {
+			adjacentMines++;
+		}
+		
+		if (col < colCount - 1 && cells.get(toCellIndex(row, col + 1))) {
+			adjacentMines++;
+		}
+		
+		if (col > 0 && cells.get(toCellIndex(row, col - 1))) {
+			adjacentMines++;
+		}
+		
+		if (row < rowCount - 1 && col > 0 && cells.get(toCellIndex(row + 1, col - 1))) {
+			adjacentMines++;
+		}
+
+		if (row < rowCount - 1 && cells.get(toCellIndex(row + 1, col))) {
+			adjacentMines++;
+		}
+
+		if (row < rowCount - 1 && col < colCount - 1 && cells.get(toCellIndex(row + 1, col + 1))) {
+			adjacentMines++;
+		}
+
+		return adjacentMines;
+	}
+	
+	/**
+	 * Maps the bidimensional coordinates in the board to a monodimensional coordinate of the cell array
+	 */
+	private int toCellIndex(int row, int col) {
+		return col + row * colCount;
 	}
 	
 	/**
@@ -135,7 +174,7 @@ public class Game {
 		validateMove(row, col);
 		
 		if (mines[row][col]) {
-			board[row][col] = CellState.MINED;
+			board[row][col] = board[row][col].changeState(State.MINED);
 			state = GameState.LOST;
 		} else {
 			revealRecursive(row, col);
@@ -149,7 +188,7 @@ public class Game {
 	 */
 	public void flag(int row, int col) throws IllegalAccessException {
 		validateMove(row, col);
-		board[row][col] = CellState.FLAGGED;
+		board[row][col] = board[row][col].changeState(State.FLAGGED);
 	}
 	
 	/**
@@ -159,7 +198,7 @@ public class Game {
 	 */
 	public void mark(int row, int col) throws IllegalAccessException {
 		validateMove(row, col);
-		board[row][col] = CellState.MARKED;
+		board[row][col] = board[row][col].changeState(State.MARKED);
 	}
 	
 	/**
@@ -169,7 +208,7 @@ public class Game {
 	 */
 	public void clear(int row, int col) throws IllegalAccessException {
 		validateMove(row, col);
-		board[row][col] = CellState.UNKNOWN;
+		board[row][col] = board[row][col].changeState(State.UNKNOWN);
 	}
 	
 	/**
@@ -201,23 +240,23 @@ public class Game {
 	}
 	
 	/**
-	 * Returns the state of a cell in the board
+	 * Returns a cell from the board
 	 */
-	public CellState getCellState(int row, int col) {
+	public Cell getCell(int row, int col) {
 		return board[row][col];
 	}
 	
 	/**
 	 * Returns a snapshot of the board's state
 	 */
-	public Game.CellState[][] getBoard() {
-		Game.CellState[][] board = new Game.CellState[rowCount][colCount];
+	public Cell[][] getBoard() {
+		Cell[][] board = new Cell[rowCount][colCount];
 		
 		IntStream.range(0, rowCount)
 			.forEach(row -> {
 				IntStream.range(0, colCount)
 					.forEach(col -> {
-						board[row][col] = getCellState(row, col);
+						board[row][col] = getCell(row, col);
 					});
 			});
 		
@@ -229,7 +268,7 @@ public class Game {
 	 */
 	private void revealRecursive(int row, int col) {
 		if (shouldBeRevealed(row, col)) {
-			board[row][col] = CellState.EMPTY;
+			board[row][col] = board[row][col].changeState(State.EMPTY);
 			emptyCellsRevealed++;
 			
 			if (emptyCellsRevealed == rowCount * colCount - mineCount) {
@@ -251,7 +290,7 @@ public class Game {
 				row >= 0 && row < rowCount &&
 				col >= 0 && col < colCount &&
 				GameState.IN_PROGRESS == state &&
-				CellState.UNKNOWN == board[row][col] &&
+				Cell.State.UNKNOWN == board[row][col].getState() &&
 				!mines[row][col];
 	}
 

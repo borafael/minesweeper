@@ -111,14 +111,14 @@ MINESWEEPER.renderBoard = function(game) {
 /**
  * Returns the character that should be used to show the state of the cell for the player
  */
-MINESWEEPER.renderCell = function(cellState) {
+MINESWEEPER.renderCell = function(cell) {
 	return {
 		'UNKNOWN': 'x', 
-		'EMPTY': '&nbsp;',
+		'EMPTY': cell.adjacentMines,
 		'FLAGGED': '!',
 		'MARKED': '?',
 		'MINED': 'm'
-	}[cellState];
+	}[cell.state];
 }
 
 /**

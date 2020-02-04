@@ -57,6 +57,14 @@ function loadGame(game) {
 	startTime = Date.parse(game.creationDate);
 	state = game.state;
 	
+	if ('LOST' == state) {
+		alert('BOOM!!!');
+	}
+	
+	if ('WON' == state) {
+		alert('You discovered all the mines!!!');
+	}
+	
 	var board = document.getElementById('board');
 	
 	while (board.firstChild) {

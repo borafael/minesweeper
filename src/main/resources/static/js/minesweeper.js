@@ -1,11 +1,9 @@
-var gameId;
-var startTime;
-var state;
+var MINESWEEPER = {}
 
 /**
  * Validates game parameters and if they are valid a request to create new game is made
  */
-function newGame() {
+MINESWEEPER.newGame = function() {
 	var rows = document.getElementById('rows').value;
 	var cols = document.getElementById('cols').value;
 	var mines = document.getElementById('mines').value;
@@ -27,49 +25,60 @@ function newGame() {
 	if (validationMessages.length > 0) {
 		alert(validationMessages.join('\n'));
 	} else {
-		createGame(rows, cols, mines);
+		this.createGame(rows, cols, mines);
 	}
 }
 
 /**
- * Makes a request to create a new game 
+ * Makes a request to create a new game, if successful the new game is rendered
  */
-function createGame(rows, cols, mines) { 
-	var xhr = new XMLHttpRequest();
-
-	xhr.open('POST', 'games');
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	xhr.onload = function() {
-	    if (xhr.status === 200) {
-	        loadGame(JSON.parse(xhr.responseText));
-	    }
-	};
-	xhr.send(JSON.stringify({
-	    'rowCount': rows,
-	    'colCount': cols,
-	    'mineCount': mines
-	}));
+MINESWEEPER.createGame = function(rows, cols, mines) { 
+	var onSuccess = function(response) {
+		MINESWEEPER.update(response);
+	}
+	
+	var payload = {
+		    'rowCount': rows,
+		    'colCount': cols,
+		    'mineCount': mines
+		};
+	
+	this.request('POST', 'games', onSuccess, payload);
 }
 
-function loadGame(game) {
+/**
+ * Updates the state of the game and renders accordingly
+ */
+MINESWEEPER.update = function(game) {
 	
-	gameId = game.id;
-	startTime = Date.parse(game.creationDate);
-	state = game.state;
+	MINESWEEPER.gameId = game.id;
+	MINESWEEPER.startTime = Date.parse(game.creationDate);
+	MINESWEEPER.state = game.state;
 	
-	if ('LOST' == state) {
+	if ('LOST' == MINESWEEPER.state) {
 		alert('BOOM!!!');
 	}
 	
-	if ('WON' == state) {
+	if ('WON' == MINESWEEPER.state) {
 		alert('You discovered all the mines!!!');
 	}
 	
+	this.renderBoard(game);
+		
+	setInterval(function() { 
+		if ('IN_PROGRESS' == MINESWEEPER.state) {
+			MINESWEEPER.updateElapsedTime();
+		}
+	}, 1);
+}
+
+/**
+ * Renderes the board according to the state of the game
+ */
+MINESWEEPER.renderBoard = function(game) {
 	var board = document.getElementById('board');
 	
-	while (board.firstChild) {
-		board.removeChild(board.firstChild);
-	}
+	this.removeElementChildren(board);
 	
 	var table = document.createElement('table');
 	var tableBody = document.createElement('tbody');
@@ -83,15 +92,8 @@ function loadGame(game) {
 			var cell = document.createElement('td');
 			
 			var button = document.createElement('button');
-			button.innerHTML = 
-				{
-					'UNKNOWN': 'x', 
-					'EMPTY': '&nbsp;',
-					'FLAGGED': '!',
-					'MARKED': '?',
-					'MINED': 'm'
-				}[game.board[rowIndex][colIndex]];
-			button.onclick = createOnClickHandler(rowIndex, colIndex);
+			button.innerHTML = this.renderCell(game.board[rowIndex][colIndex]);
+			button.onclick = this.createOnClickHandler(rowIndex, colIndex);
 			
 			cell.appendChild(button);
 			
@@ -104,52 +106,83 @@ function loadGame(game) {
 	table.appendChild(tableBody);
 	
 	board.appendChild(table);
-		
-	setInterval(function() { 
-		if ('IN_PROGRESS' == state) {
-			updateElapsedTime();
-		}
-	}, 1);
 }
 
-function updateElapsedTime() {
+/**
+ * Returns the character that should be used to show the state of the cell for the player
+ */
+MINESWEEPER.renderCell = function(cellState) {
+	return {
+		'UNKNOWN': 'x', 
+		'EMPTY': '&nbsp;',
+		'FLAGGED': '!',
+		'MARKED': '?',
+		'MINED': 'm'
+	}[cellState];
+}
+
+/**
+ * Shows elapsed time since the start of the game below the board
+ */
+MINESWEEPER.updateElapsedTime = function() {
 	var statusDiv = document.getElementById('status');
 	
-	removeElementChildren(statusDiv);
+	this.removeElementChildren(statusDiv);
 	
-	var elapsed = new Date().getTime() - startTime;
+	var elapsed = new Date().getTime() - MINESWEEPER.startTime;
 	
 	var elapsedTime = document.createTextNode(new Date(elapsed).toISOString().slice(11, -1));
 
 	statusDiv.appendChild(elapsedTime);	
 }
 
-function createOnClickHandler(row, col) {
+/**
+ * Makes a request to reveal the cell in the received coordinates, if successful, the game is updated
+ */
+MINESWEEPER.reveal = function(row, col) {
+	var onSuccess = function(response) {
+		MINESWEEPER.update(response);
+	}
+	
+	var payload = {
+		    'row': row,
+		    'col': col,
+		    'type': 'reveal'
+		};
+	
+	this.request('POST', 'games/' + MINESWEEPER.gameId + '/moves', onSuccess, payload);
+}
+
+/**
+ * Auxiliary function to create a handler for the onclick event 
+ */
+MINESWEEPER.createOnClickHandler = function(row, col) {
 	return function() {
-		reveal(row, col);
+		MINESWEEPER.reveal(row, col);
 	}
 }
 
-function reveal(row, col) {
-	var xhr = new XMLHttpRequest();
-
-	xhr.open('POST', 'games/' + gameId + '/moves');
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	xhr.onload = function() {
-	    if (xhr.status === 200) {
-	        loadGame(JSON.parse(xhr.responseText));
-	    }
-	};
-	xhr.send(JSON.stringify({
-	    'row': row,
-	    'col': col,
-	    'type': 'reveal'
-	}));
-}
-
-function removeElementChildren(element) {
+/**
+ * Auxiliary method to clear child nodes of an element
+ */
+MINESWEEPER.removeElementChildren = function (element) {
 	while (element.firstChild) {
 		element.removeChild(element.firstChild);
 	}
+}
 
+/**
+ * Auxiliary method to make an ajax request to the server
+ */
+MINESWEEPER.request = function(method, url, onSuccess, payload) {
+	var xhr = new XMLHttpRequest();
+
+	xhr.open(method, url);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.onload = function() {
+	    if (xhr.status === 200) {
+	    	onSuccess(JSON.parse(xhr.responseText));
+	    }
+	};
+	xhr.send(JSON.stringify(payload));
 }

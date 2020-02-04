@@ -113,8 +113,8 @@ MINESWEEPER.renderBoard = function(game) {
  */
 MINESWEEPER.renderCell = function(cell) {
 	return {
-		'UNKNOWN': 'x', 
-		'EMPTY': cell.adjacentMines,
+		'UNKNOWN': '<b>x</b>', 
+		'EMPTY': cell.adjacentMines == 0 ? '&nbsp;' : cell.adjacentMines,
 		'FLAGGED': '!',
 		'MARKED': '?',
 		'MINED': 'm'
